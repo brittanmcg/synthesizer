@@ -1,4 +1,5 @@
 import { useRef, type PointerEvent } from 'react';
+import { toNorm, fromNorm } from '../lib/knobScale';
 
 interface KnobProps {
   id: string;
@@ -14,23 +15,6 @@ interface KnobProps {
 const MIN_DEG = -135;
 const MAX_DEG = 135;
 const DRAG_RANGE_PX = 140;
-
-function toNorm(v: number, min: number, max: number, log: boolean) {
-  if (log) {
-    const lv = Math.log(v), lmin = Math.log(min), lmax = Math.log(max);
-    return (lv - lmin) / (lmax - lmin);
-  }
-  return (v - min) / (max - min);
-}
-
-function fromNorm(n: number, min: number, max: number, log: boolean) {
-  const clamped = Math.min(1, Math.max(0, n));
-  if (log) {
-    const lmin = Math.log(min), lmax = Math.log(max);
-    return Math.exp(lmin + clamped * (lmax - lmin));
-  }
-  return min + clamped * (max - min);
-}
 
 /** A draggable rotary knob (vertical drag), matching the original panel-hardware feel. */
 export function Knob({ id, min, max, value, label, log = false, format, onChange }: KnobProps) {
