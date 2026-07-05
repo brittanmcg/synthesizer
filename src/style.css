@@ -1,0 +1,289 @@
+  :root {
+    --bg: #0c0c0e;
+    --panel: #1c1c20;
+    --panel-light: #26262b;
+    --panel-seam: #0a0a0b;
+    --text: #e8e6e0;
+    --text-dim: #8b8b93;
+    --amber: #ffa726;
+    --amber-dim: #6b4d1f;
+    --teal: #4fd1c5;
+    --teal-dim: #235350;
+    --red: #ff453a;
+    --red-dim: #4a1f1d;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .machine {
+    width: 100%;
+    max-width: 920px;
+  }
+
+  .header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 0 6px 14px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    margin: 0;
+    color: var(--text);
+  }
+
+  .header h1 span { color: var(--amber); }
+
+  .header .subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+
+  .panel {
+    background: linear-gradient(180deg, var(--panel-light), var(--panel));
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.04) inset,
+      0 -1px 0 var(--panel-seam) inset,
+      0 20px 40px rgba(0,0,0,0.5);
+    border: 1px solid #000;
+  }
+
+  /* --- scope --- */
+  .scope-wrap {
+    background: #08080a;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 18px;
+    border: 1px solid #000;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset;
+    position: relative;
+  }
+
+  canvas#scope {
+    display: block;
+    width: 100%;
+    height: 110px;
+    border-radius: 3px;
+  }
+
+  .scope-label {
+    position: absolute;
+    top: 14px;
+    left: 20px;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+  }
+
+  /* --- sections row --- */
+  .sections {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+
+  .section {
+    flex: 1;
+    min-width: 190px;
+    background: rgba(0,0,0,0.18);
+    border-radius: 8px;
+    padding: 14px 16px 18px;
+    border: 1px solid rgba(0,0,0,0.5);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset;
+  }
+
+  .section-title {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .section-title .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .section.osc .dot { background: var(--amber); }
+  .section.filt .dot { background: var(--teal); }
+  .section.env .dot { background: var(--amber); }
+
+  .row { display: flex; gap: 18px; align-items: flex-start; justify-content: space-around; }
+
+  /* --- waveform buttons --- */
+  .wave-buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .wave-btn {
+    background: #17171a;
+    border: 1px solid #000;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 16px;
+    width: 38px;
+    height: 34px;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset;
+  }
+  .wave-btn.active {
+    color: #0c0c0e;
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+
+  /* --- knob --- */
+  .knob-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+  }
+
+  .knob {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #35353c, #19191c 70%);
+    border: 1px solid #000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.05) inset;
+    position: relative;
+    cursor: ns-resize;
+    touch-action: none;
+  }
+
+  .knob .indicator {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    width: 2px;
+    height: 14px;
+    background: var(--amber);
+    border-radius: 1px;
+    transform-origin: 50% 22px;
+  }
+  .section.filt .knob .indicator { background: var(--teal); }
+
+  .knob-label {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  .knob-value {
+    font-size: 9px;
+    color: var(--text);
+    opacity: 0.7;
+  }
+
+  /* --- MIDI status --- */
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+
+  .led {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--red-dim);
+    box-shadow: 0 0 0 rgba(255,69,58,0);
+    transition: background 0.08s, box-shadow 0.08s;
+  }
+  .led.on {
+    background: var(--red);
+    box-shadow: 0 0 8px var(--red);
+  }
+  .led.midi-ready {
+    background: var(--teal-dim);
+  }
+  .led.midi-ready.active {
+    background: var(--teal);
+    box-shadow: 0 0 6px var(--teal);
+  }
+
+  /* --- keyboard --- */
+  .keyboard {
+    position: relative;
+    display: flex;
+    height: 110px;
+    background: #050506;
+    border-radius: 6px;
+    padding: 6px;
+    border: 1px solid #000;
+    overflow: hidden;
+  }
+
+  .key {
+    position: relative;
+    flex: 1;
+    background: linear-gradient(180deg, #ece7dc, #cfc9ba);
+    border: 1px solid #05050a;
+    border-radius: 0 0 4px 4px;
+    margin-right: 2px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 6px;
+    font-size: 9px;
+    color: #55524a;
+    cursor: pointer;
+  }
+  .key:last-child { margin-right: 0; }
+  .key.active {
+    background: linear-gradient(180deg, var(--amber), #c9820f);
+    color: #2b1a00;
+  }
+  .key.black {
+    position: absolute;
+    width: 5.6%;
+    height: 62%;
+    background: linear-gradient(180deg, #2a2a2c, #101012);
+    border: 1px solid #000;
+    border-radius: 0 0 3px 3px;
+    z-index: 2;
+    margin: 0;
+  }
+  .key.black.active {
+    background: linear-gradient(180deg, var(--teal), #1f6b64);
+  }
+
+  .hint {
+    margin-top: 12px;
+    font-size: 10px;
+    color: var(--text-dim);
+    text-align: center;
+    letter-spacing: 0.03em;
+  }
+  .hint b { color: var(--text); }
