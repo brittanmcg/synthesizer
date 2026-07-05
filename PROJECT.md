@@ -20,8 +20,9 @@ direction is:
 
 - **Audio engine:** Web Audio API (native browser API, no framework layer yet)
 - **MIDI input:** Web MIDI API (native, connects directly to hardware controllers)
-- **UI:** plain HTML/CSS/JS for now; a JS framework (React/Svelte) can be layered
-  in as the UI grows more complex
+- **UI:** Vite + React + TypeScript (moved off plain HTML/CSS/JS ahead of
+  schedule — see "Current code" below — since the panel outgrew hand-rolled
+  DOM updates faster than expected)
 - **Packaging (future step, not yet done):** wrap the finished web app with
   **Tauri** to produce a real double-clickable macOS `.app` with its own dock
   icon — not "open a browser tab." Chosen over Electron for being lighter weight.
@@ -55,9 +56,11 @@ the current scope.
       allocation/stealing so chords work, not just one note at a time
 - [ ] **Phase 3 — LFO + modulation**: at least filter cutoff modulation to
       start
-- [ ] **Phase 4 — Fuller GUI**: move from raw DOM/CSS knobs to a proper
-      component framework if the UI complexity warrants it; more parameters
-      exposed (filter type, envelope stages, etc.)
+- [x] **Phase 4a — Component framework**: moved from raw DOM/CSS knobs to
+      React + TypeScript (Vite). Done early, out of order — see "Current
+      code" below.
+- [ ] **Phase 4b — More parameters**: expose more synth parameters (filter
+      type, envelope stages, etc.)
 - [ ] **Phase 5 — Hardware controller build**: Teensy 4.0/4.1 with
       potentiometers/encoders, USB MIDI class-compliant, sending MIDI CC
       messages to the software synth
@@ -67,22 +70,31 @@ the current scope.
 
 ## Current code
 
-**File:** `synth-phase1.html` — a single self-contained HTML file (no build
-step, no dependencies except a Google Fonts import for JetBrains Mono).
+**Stack:** Vite + React + TypeScript app (originally prototyped as a single
+self-contained `synth-phase1.html`, then converted to React once the panel
+UI outgrew hand-rolled DOM updates). No backend, no routing, single page.
 
-**What it implements:**
-- Monophonic (single voice) subtractive synth: `OscillatorNode` →
-  `BiquadFilterNode` (lowpass) → `GainNode` (manual AR envelope via
-  `linearRampToValueAtTime`)
-- 4 selectable waveforms: sine, square, sawtooth, triangle
-- Custom draggable rotary knob UI component (cutoff, resonance, attack,
-  release, octave — cutoff/attack/release are log-scaled for musical feel)
-- Live oscilloscope via `AnalyserNode` + `<canvas>`
-- Web MIDI input: auto-connects to any plugged-in MIDI device, decodes raw
-  note-on/note-off bytes
-- On-screen clickable keyboard + computer-keyboard fallback
-  (`A S D F G H J K` = white keys, `W E T Y U` = black keys) so it's
-  playable with no MIDI hardware attached
+**Structure:**
+- `src/hooks/useSynthEngine.ts` — owns the Web Audio graph (`OscillatorNode`
+  → `BiquadFilterNode` lowpass → `GainNode` manual AR envelope →
+  `AnalyserNode` → destination). Audio nodes/params live in refs, not React
+  state, and all parameter changes go through Web Audio's scheduling methods
+  (`setTargetAtTime`, `linearRampToValueAtTime`) rather than direct `.value`
+  assignment, per the convention below.
+- `src/hooks/useMidi.ts` — Web MIDI input; auto-connects to any plugged-in
+  device, decodes raw note-on/note-off bytes, tracks connect/disconnect.
+- `src/hooks/useComputerKeyboard.ts` — computer-keyboard fallback
+  (`A S D F G H J K` = white keys, `W E T Y U` = black keys) so it's playable
+  with no MIDI hardware attached.
+- `src/components/` — `Knob` (draggable rotary control, linear or log
+  scaling — cutoff/attack/release are log-scaled for musical feel),
+  `Scope` (live oscilloscope via `AnalyserNode` + `<canvas>`),
+  `PianoKeyboard`, `WaveButtons` (4 selectable waveforms: sine, square,
+  sawtooth, triangle), `StatusBar`.
+- `src/App.tsx` — composition root wiring the above together.
+- `tests/synth.spec.ts` — Playwright end-to-end suite driving the real UI
+  (waveform selection, knob drag, keyboard/MIDI-style note-on/off,
+  oscilloscope rendering).
 
 **Deliberately NOT yet implemented** (do not "fix" these — they're the next
 planned phases, not bugs):
